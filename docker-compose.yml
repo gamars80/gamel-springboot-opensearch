@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: springboot-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - opensearch
+    environment:
+      # 환경변수를 통해 application.yml 설정을 덮어쓸 수 있습니다.
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ecommerce?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - OPENSEARCH_HOST=opensearch
+      - OPENSEARCH_PORT=9200
+      - OPENSEARCH_SCHEME=http
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: ecommerce
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  opensearch:
+    image: opensearchproject/opensearch:2.3.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+
+volumes:
+  mysql_data:
