@@ -10,7 +10,7 @@ services:
       - opensearch
       - rabbitmq
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ecommerce?useSSL=false&serverTimezone=UTC"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ecommerce?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "1234"
       OPENSEARCH_HOST: "opensearch"
@@ -37,6 +37,11 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   opensearch:
     image: opensearchproject/opensearch:2.3.0

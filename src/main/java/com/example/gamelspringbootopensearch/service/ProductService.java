@@ -57,7 +57,7 @@ public class ProductService {
         for (SearchHit hit : response.getHits().getHits()) {
             Map<String, Object> src = hit.getSourceAsMap();
             ProductDTO dto = ProductDTO.builder()
-                    .id(Long.valueOf(src.get("id").toString()))
+                    .id(Long.valueOf(hit.getId())) // hit.getId() 사용
                     .name(src.get("name").toString())
                     .description(src.get("description").toString())
                     .categoryId(Long.valueOf(src.get("categoryId").toString()))

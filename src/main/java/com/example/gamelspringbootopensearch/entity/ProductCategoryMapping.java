@@ -20,9 +20,8 @@ public class ProductCategoryMapping {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    // getters, setters
 }
