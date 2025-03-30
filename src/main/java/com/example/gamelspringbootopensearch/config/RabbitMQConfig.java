@@ -16,6 +16,8 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 
 @Configuration
 public class RabbitMQConfig {
@@ -24,6 +26,10 @@ public class RabbitMQConfig {
     public static final String PRODUCT_REGISTRATION_DLQ = "product.registration.dlq";
     public static final String EXCHANGE = "product.registration.exchange";
     public static final String ROUTING_KEY = "product.registration.routingkey";
+    public static final String PRODUCT_UPDATE_QUEUE = "product.update.queue";
+    public static final String PRODUCT_UPDATE_DLQ = "product.update.dlq";
+    public static final String UPDATE_ROUTING_KEY = "product.update.routingkey";
+    public static final String UPDATE_EXCHANGE = "product.update.exchange";
 
     @Bean
     public Queue productRegistrationQueue() {
@@ -57,13 +63,50 @@ public class RabbitMQConfig {
                 .with("dlq");
     }
 
+
+    @Bean
+    public Queue productUpdateQueue() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-dead-letter-exchange", UPDATE_EXCHANGE);
+        args.put("x-dead-letter-routing-key", "update-dlq");
+        return new Queue(PRODUCT_UPDATE_QUEUE, true, false, false, args);
+    }
+
+    @Bean
+    public Queue productUpdateDLQ() {
+        return new Queue(PRODUCT_UPDATE_DLQ, true);
+    }
+
+    @Bean
+    public TopicExchange productUpdateExchange() {
+        return new TopicExchange(UPDATE_EXCHANGE);
+    }
+
+    @Bean
+    public Binding bindingProductUpdateQueue(Queue productUpdateQueue, TopicExchange productUpdateExchange) {
+        return BindingBuilder.bind(productUpdateQueue)
+                .to(productUpdateExchange)
+                .with(UPDATE_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding bindingProductUpdateDLQ(Queue productUpdateDLQ, TopicExchange productUpdateExchange) {
+        return BindingBuilder.bind(productUpdateDLQ)
+                .to(productUpdateExchange)
+                .with("update-dlq");
+    }
+
+
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
-            ConnectionFactory connectionFactory, RetryOperationsInterceptor retryInterceptor) {
+            ConnectionFactory connectionFactory,
+            RetryOperationsInterceptor retryInterceptor,
+            MessageConverter jsonMessageConverter) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setAdviceChain(new MethodInterceptor[]{retryInterceptor});
-        // 기본 메시지 컨버터를 사용합니다.
+        // Jackson2JsonMessageConverter를 사용하도록 설정
+        factory.setMessageConverter(jsonMessageConverter);
         return factory;
     }
 
@@ -74,5 +117,10 @@ public class RabbitMQConfig {
                 .maxAttempts(4)
                 .recoverer(new RejectAndDontRequeueRecoverer())
                 .build();
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }

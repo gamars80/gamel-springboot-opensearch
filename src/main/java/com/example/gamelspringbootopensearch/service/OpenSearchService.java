@@ -2,6 +2,7 @@ package com.example.gamelspringbootopensearch.service;
 
 
 import com.example.gamelspringbootopensearch.dto.ProductRegistrationMessage;
+import com.example.gamelspringbootopensearch.dto.ProductUpdateMessage;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
@@ -42,6 +43,26 @@ public class OpenSearchService {
         } catch (IOException e) {
             // 예외 처리 로직 (필요에 따라 재시도, 로그 남기기 등 추가 가능)
             e.printStackTrace();
+        }
+    }
+
+    // 상품 업데이트를 위한 메서드 추가 (이름과 가격만 업데이트)
+    public void updateProduct(ProductUpdateMessage message) {
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("name", message.getName());
+        jsonMap.put("price", message.getPrice());
+
+        // "products" 인덱스에 해당 상품 ID로 문서를 생성/업데이트
+        IndexRequest request = new IndexRequest("products")
+                .id(String.valueOf(message.getProductId()))
+                .source(jsonMap, XContentType.JSON);
+
+        try {
+            IndexResponse response = openSearchClient.index(request, RequestOptions.DEFAULT);
+            System.out.println("OpenSearch update result: " + response.getResult());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to update product in OpenSearch", e);
         }
     }
 }

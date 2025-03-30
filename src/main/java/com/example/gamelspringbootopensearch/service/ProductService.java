@@ -1,9 +1,7 @@
 package com.example.gamelspringbootopensearch.service;
 
 import com.example.gamelspringbootopensearch.config.RabbitMQConfig;
-import com.example.gamelspringbootopensearch.dto.ProductDTO;
-import com.example.gamelspringbootopensearch.dto.ProductRegistrationMessage;
-import com.example.gamelspringbootopensearch.dto.ProductRegistrationRequest;
+import com.example.gamelspringbootopensearch.dto.*;
 import com.example.gamelspringbootopensearch.entity.*;
 import com.example.gamelspringbootopensearch.repository.*;
 import jakarta.transaction.Transactional;
@@ -127,5 +125,35 @@ public class ProductService {
         );
 
         return savedProduct;
+    }
+
+
+    @Transactional
+    public void updateProduct(Long productId, ProductUpdateRequest updateRequest) {
+        // MySQL에서 상품 조회
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
+
+        // 상품 정보 업데이트
+        product.updateProduct(updateRequest.getName());
+
+        ProductPrice price = priceRepository.findByProduct(product);
+        if( price == null) {
+            new RuntimeException("Product not found with id: " + productId);
+        }
+
+        price.updateProductPrice(updateRequest.getPrice());
+
+        // OpenSearch 업데이트를 위한 메시지 생성
+        ProductUpdateMessage message = new ProductUpdateMessage();
+        message.setProductId(product.getId());
+        message.setName(product.getName());
+        message.setPrice(price.getPrice());
+
+        // RabbitMQ로 메시지 전송
+        // 재처리 및 DLQ 처리는 RabbitMQ의 컨슈머와 별도 설정(예: Spring Retry, DLQ 큐)에서 수행됩니다.
+        rabbitTemplate.convertAndSend(RabbitMQConfig.UPDATE_EXCHANGE,
+                RabbitMQConfig.UPDATE_ROUTING_KEY, message);
+
     }
 }

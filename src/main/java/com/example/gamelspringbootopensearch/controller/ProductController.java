@@ -3,6 +3,7 @@ package com.example.gamelspringbootopensearch.controller;
 
 import com.example.gamelspringbootopensearch.dto.ProductDTO;
 import com.example.gamelspringbootopensearch.dto.ProductRegistrationRequest;
+import com.example.gamelspringbootopensearch.dto.ProductUpdateRequest;
 import com.example.gamelspringbootopensearch.entity.Product;
 import com.example.gamelspringbootopensearch.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,13 @@ public class ProductController {
     public ResponseEntity<Product> registerProduct(@RequestBody ProductRegistrationRequest request) {
         Product savedProduct = productService.registerProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateProduct(
+            @PathVariable("id") Long productId,
+            @RequestBody ProductUpdateRequest updateRequest) {
+        productService.updateProduct(productId, updateRequest);
+        return ResponseEntity.ok("ok");
     }
 }

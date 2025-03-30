@@ -26,4 +26,7 @@ public class ProductPrice {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    public void updateProductPrice(Double price) {
+        this.price = price;
+    }
 }

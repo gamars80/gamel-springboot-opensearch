@@ -33,5 +33,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductHashtagMapping> hashtagMappings;
 
-    // getters, setters, 생성자 (생략)
+    public void updateProduct(String name) {
+        this.name = name;
+    }
 }
