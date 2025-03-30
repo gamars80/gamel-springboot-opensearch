@@ -8,14 +8,24 @@ services:
     depends_on:
       - mysql
       - opensearch
+      - rabbitmq
     environment:
-      # 환경변수를 통해 application.yml 설정을 덮어쓸 수 있습니다.
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ecommerce?useSSL=false&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=1234
-      - OPENSEARCH_HOST=opensearch
-      - OPENSEARCH_PORT=9200
-      - OPENSEARCH_SCHEME=http
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ecommerce?useSSL=false&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      OPENSEARCH_HOST: "opensearch"
+      OPENSEARCH_PORT: "9200"
+      OPENSEARCH_SCHEME: "http"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_AMQP_DESERIALIZATION_TRUST_ALL: "true"
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"    # AMQP 포트
+      - "15672:15672"  # 관리 콘솔 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
 
   mysql:
     image: mysql:8.0

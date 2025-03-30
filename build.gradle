@@ -21,6 +21,12 @@ dependencies {
     // AWS OpenSearch (Rest High Level Client)
     implementation 'org.opensearch.client:opensearch-rest-high-level-client:2.3.0'
 
+    // RabbitMQ, Spring AMQP (최신 버전: 3.2.2가 포함됩니다)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // Spring Retry (필요시)
+    implementation 'org.springframework.retry:spring-retry'
+
     // 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

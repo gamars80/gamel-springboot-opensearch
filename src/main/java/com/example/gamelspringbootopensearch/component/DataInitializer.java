@@ -6,7 +6,7 @@ import com.example.gamelspringbootopensearch.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +37,11 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        // 데이터가 이미 존재하면 초기화 작업을 수행하지 않습니다.
+        if (categoryRepository.count() > 0) {
+            return;
+        }
+
         // 카테고리 2개 생성
         Category category1 = new Category();
         category1.setName("Category 1");
@@ -64,7 +69,7 @@ public class DataInitializer implements CommandLineRunner {
 
             // 상품 가격 생성
             ProductPrice productPrice = new ProductPrice();
-            productPrice.setPrice(new BigDecimal("100.00").add(new BigDecimal(i)));
+            productPrice.setPrice(100.0);
             productPrice.setProduct(product);
             productPriceRepository.save(productPrice);
 

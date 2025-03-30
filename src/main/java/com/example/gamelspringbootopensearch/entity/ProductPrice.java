@@ -2,10 +2,7 @@ package com.example.gamelspringbootopensearch.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -13,6 +10,7 @@ import java.math.BigDecimal;
 @Table(name = "product_price")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductPrice {
@@ -22,11 +20,10 @@ public class ProductPrice {
     private Long id; // 고유 pk
 
     @Column(nullable = false)
-    private BigDecimal price; // 상품가격
+    private Double price; // 상품가격
 
     @OneToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // getters, setters
 }

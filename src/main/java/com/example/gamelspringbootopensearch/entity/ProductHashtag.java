@@ -21,5 +21,4 @@ public class ProductHashtag {
     @Column(nullable = false)
     private String tagName; // 태그명
 
-    // getters, setters
 }
